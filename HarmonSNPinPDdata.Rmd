@@ -1,0 +1,55 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This script is for flipping those variants that doesen't have the same Effect Allele coding as their corresponding exposure counterpart. 
+
+```{r}
+PDcolnames<-c("MarkerName","Allele1","Allele2","Effect","StdErr","P.value","NStudies","HetISq")
+pathData<-c("/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/SNPsinPD4Flipping/")
+FileNames<-list.files(path = pathData, pattern = NULL)
+ldf <- lapply(FileNames, read.table, col.names=PDcolnames)
+FileNames <- sub("inPD4flip","", FileNames)
+names(ldf) <- FileNames
+ageofinit<-ldf$ageofinit
+ageofinit<-tbl_df(ageofinit)
+ageofinit[,2:3]<- ageofinit[,3:2]
+ageofinit[,4]<- ageofinit[,4]*-1
+write.table(ageofinit,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/ageofinitPDfliped")
+cigarettespday<-ldf$cigarettespday
+cigarettespday<-tbl_df(cigarettespday)
+cigarettespday[,2:3]<- cigarettespday[,3:2]
+cigarettespday[,4]<- cigarettespday[,4]*-1
+write.table(cigarettespday,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/cigarettespdayPDfliped")
+drinksperweek<-ldf$drinksperweek
+drinksperweek<-tbl_df(drinksperweek)
+drinksperweek[,2:3]<- drinksperweek[,3:2]
+drinksperweek[,4]<- drinksperweek[,4]*-1
+write.table(drinksperweek,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/drinksperweekPDfliped")
+eduyears<-ldf$eduyears
+eduyears<-tbl_df(eduyears)
+eduyears[,2:3]<- eduyears[,3:2]
+eduyears[,4]<- eduyears[,4]*-1
+write.table(eduyears,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/eduyearsPDfliped")
+eversmoking<-ldf$eversmoking
+eversmoking<-tbl_df(eversmoking)
+eversmoking[,2:3]<- eversmoking[,3:2]
+eversmoking[,4]<- eversmoking[,4]*-1
+write.table(eversmoking,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/eversmokingPDfliped")
+sleepdur<-ldf$sleepdur
+sleepdur<-tbl_df(sleepdur)
+sleepdur[,2:3]<- sleepdur[,3:2]
+sleepdur[,4]<- sleepdur[,4]*-1
+write.table(sleepdur,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/sleepdurPDfliped")
+smokingstatus<-ldf$smokingstatus
+smokingstatus<-tbl_df(smokingstatus)
+smokingstatus[,2:3]<- smokingstatus[,3:2]
+smokingstatus[,4]<- smokingstatus[,4]*-1
+write.table(smokingstatus,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/smokingstatusPDfliped")
+insomnia<-ldf$insomnia
+insomnia<-tbl_df(insomnia)
+insomnia[,2:3]<- insomnia[,3:2]
+insomnia[,4]<- insomnia[,4]*-1
+write.table(insomnia,"/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/AllHarmonized/insomniaPDfliped")
+```
