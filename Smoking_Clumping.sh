@@ -1,6 +1,6 @@
 ##This code is for obtainig the index SNPs (IV) by clumping from smoking GWAS data
 ##We need to clump SNPs to ensure that all the index SNPs are independent frome one another
-##Ater that, we will extract those index SNPs data from the PD GWAS, an calculate the Rsquare an F-statistic from the instruments
+##After that, we will extract those index SNPs data from the PD GWAS, an calculate the Rsquare an F-statistic from the instruments
 ##We are using the summary statistics from Liu,2019 downloaded from https://conservancy.umn.edu/handle/11299/201564
 
 #2. PREPARE GWAS FILES FOR SNP CLUMPING (in PLINK)
