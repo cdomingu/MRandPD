@@ -1,0 +1,88 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This script is for conducting Harmonization, specifically, for ensuring that the instrument-exposure associations are all in the same direction (positive)
+I not, flip the variant
+
+```{r}
+IVcolnames<-c("RsID","REF","ALT","AF","BETA","SE","PVAL")
+pathData<-c("/data/neurogen/MRandPD/Results/HarmonizationVerbose/data4Harmonizing/InstrumentalVariables/")
+FileNames<-list.files(path = pathData, pattern = NULL)
+ldf <- lapply(FileNames, read.table, skip=1, col.names=IVcolnames)
+FileNames <- sub("Instruvar","", FileNames)
+names(ldf) <- FileNames
+ageofinit<-ldf$ageofinitiat
+ageofinit<-tbl_df(ageofinit)
+Betapos <- ageofinit[ageofinit$BETA > 0, IVcolnames] 
+Betaneg <- ageofinit[ageofinit$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+ageofinit<-bind_rows(Betapos,Betaneg)
+write.table(ageofinit,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/ageofinitsmoking")
+cigarettespday<-ldf$cigarettespday
+cigarettespday<-tbl_df(cigarettespday)
+Betapos <- cigarettespday[cigarettespday$BETA > 0, IVcolnames] 
+Betaneg <- cigarettespday[cigarettespday$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+cigarettespday<-bind_rows(Betapos,Betaneg)
+write.table(cigarettespday,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/cigarettespday")
+drinksperweek<-ldf$drinksperweek
+drinksperweek<-tbl_df(drinksperweek)
+Betapos <- drinksperweek[drinksperweek$BETA > 0, IVcolnames] 
+Betaneg <- drinksperweek[drinksperweek$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+drinksperweek<-bind_rows(Betapos,Betaneg)
+write.table(drinksperweek,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/drinksperweek")
+eduyears<-ldf$eduyears
+eduyears<-tbl_df(eduyears)
+Betapos <- eduyears[eduyears$BETA > 0, IVcolnames] 
+Betaneg <- eduyears[eduyears$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+eduyears<-bind_rows(Betapos,Betaneg)
+write.table(eduyears,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/eduyears")
+eversmoking<-ldf$eversmoking
+eversmoking<-tbl_df(eversmoking)
+Betapos <- eversmoking[eversmoking$BETA > 0, IVcolnames] 
+Betaneg <- eversmoking[eversmoking$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+eversmoking<-bind_rows(Betapos,Betaneg)
+write.table(eversmoking,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/eversmoking")
+excessdaysleep<-ldf$excessdaysleep
+excessdaysleep<-tbl_df(excessdaysleep)
+Betapos <- excessdaysleep[excessdaysleep$BETA > 0, IVcolnames] 
+Betaneg <- excessdaysleep[excessdaysleep$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+excessdaysleep<-bind_rows(Betapos,Betaneg)
+write.table(excessdaysleep,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/excessdaysleep")
+sleepdur<-ldf$sleepdur
+sleepdur<-tbl_df(sleepdur)
+Betapos <- sleepdur[sleepdur$BETA > 0, IVcolnames] 
+Betaneg <- sleepdur[sleepdur$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+sleepdur<-bind_rows(Betapos,Betaneg)
+write.table(sleepdur,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/sleepdur")
+smokingstatus<-ldf$smokingstatus
+smokingstatus<-tbl_df(smokingstatus)
+Betapos <- smokingstatus[smokingstatus$BETA > 0, IVcolnames] 
+Betaneg <- smokingstatus[smokingstatus$BETA < 0, IVcolnames]
+Betaneg[,2:3]<- Betaneg[,3:2]
+Betaneg[,4]<- 1-Betaneg[,4]
+Betaneg[,5]<- Betaneg[,5]*-1
+smokingstatus<-bind_rows(Betapos,Betaneg)
+write.table(smokingstatus,"/data/neurogen/MRandPD/Results/R2andFstatisticVerbose/smokingstatus")
+```
