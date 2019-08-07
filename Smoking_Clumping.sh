@@ -31,7 +31,8 @@ grep rs allSnpRsUniquesmoking2019 > allSnpRsUniqueNoIndelssmoking2019
 
 # 4 CREATE .lsf FILES TO RUN IN CLUSTER QUEUE
 #Parameters for clumping: --clump-p1 .00000005 --clump-p2 .01 --clump-r2 0.001 --clump-kb 10000 --clump-verbose
-#this meand that intex snps will reach genomewide significance (.00000005) and either have a r2=0.001 with the next index SNP ore be 10000 kb appart
+#this mean that index snps will reach genomewide significance (.00000005) and either have a r2=0.001 with the next index SNP or be 10000 kb appart
+#--clump-verbose to ger the Rsquare values of the clumped SNPs with the index SNP
 for i in cigarettespday eversmoking smokingstatus ageofinitiation
 do
 for j in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
@@ -53,7 +54,7 @@ bsub -q normal < "$i".clump_chr"$j".lsf
 done 
 done
 
-#5.EXTRACT THE LIST OF INDEXSNPS FROM CLIMPING RESULTS
+#5.EXTRACT THE LIST OF INDEXSNPS FROM CLUMPING RESULTS
 cd /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/
 cat clumped.cigarettespday.chr*.clumped > temp
 grep 'INDEX' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | cut -d ' ' -f3 > indexSNPScigperdayverb
@@ -102,18 +103,21 @@ cd /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/
 cat clumped.cigarettespday.chr*.clumped > temp
 sed -e 's/     / /g' temp| sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPscigperday
+#after manually checking, no new snps
 cat clumped.eversmoking.chr*.clumped > temp
 sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]"> rsqSNPseversmok
 cat clumped.smokingstatus.chr*.clumped > temp
 sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsmokstat
+#after manually checking, no new snps
 cat clumped.ageofinitiation.chr*.clumped > temp
 sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsageofinit
+#after manually checking, no new snps
 
 #10."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
-grep -w -A10 'everymissingsnp' rsqSNPs'verytrait' 
+grep -w -A10 'everymissingsnp' rsqSNPseversmok 
 
 #11.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
 grep -A4 'rs76214862' rsqSNPseversmok | grep -v INDEX | cut -d ' ' -f2 > rs76214862RsqSNPeversmk
@@ -126,7 +130,7 @@ grep -w -f rs12112638RsqSNPeversmk /data/neurogen/MRandPD/GWASsummaryStats/pd/ME
 #13.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
 cat eversmkSNPinPDdataV rs76214862RsqSNPeversmkinpPD rs12112638RsqSNPeversmkinpPD > fulleversmkSNPinPDdataV
 
-#EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
+#14.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
 cd /data/neurogen/MRandPD/Results/HarmonizationVerbose/
 echo "CHROM POS RSID REF ALT AF STAT PVALUE BETA SE N EFFECTIVE_N Number_of_Studies ANNO ANNOFULL" | sed -e 's/ /\t/g'  > header
 awk '{ if (NR!=1) print $1}' ageofinitsmkSNPinPDdataV > temp
