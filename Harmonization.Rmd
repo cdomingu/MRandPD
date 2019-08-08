@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 This script is for conducting Harmonization, specifically, for ensuring that the instrument-exposure associations are all in the same direction (positive)
-I not, flip the variant
+I not, flip the variant. As described in in Hartwig, 2016
 
 ```{r}
 IVcolnames<-c("RsID","REF","ALT","AF","BETA","SE","PVAL")
