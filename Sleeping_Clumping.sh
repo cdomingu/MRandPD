@@ -83,16 +83,6 @@ grep -w -f indexSNPSsleepdurV /data/neurogen/MRandPD/GWASsummaryStats/sleep/Appl
 cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticprePD/sleepdurforR2calc
 
 #7. AS PD DATASET DOS NOT HAVE rsID BUT CHR:BP VALUES, EXTRACT THE CHR:POS OF OUR INDEX SNPS
-awk '{ if (NR!=1) print $1,$2}' ageofinitiationforR2calc > temp
-sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > ageofinitchrpos
-awk '{ if (NR!=1) print $1,$2}' cigarettespdayforR2calc > temp
-sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > cigarettespdaychrpos
-awk '{ if (NR!=1) print $1,$2}' drinksperweekforR2calc > temp
-sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > drinkspweekchrpos
-awk '{ if (NR!=1) print $1,$2}' eversmokingforR2calc > temp
-sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > eversmokingchrpos
-awk '{ if (NR!=1) print $1,$2}' smokingstatusforR2calc > temp
-sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > smokingstatchrpos
 awk '{ if (NR!=1) print $2,$3}' excessdaysleepforR2calc > temp
 sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > excessdaysleepchrpos
 awk '{ if (NR!=1) print $2,$3}' sleepdurforR2calc > temp
@@ -202,7 +192,7 @@ grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/DBsnpchrposI
 join fullexcessdaysleepSNPinNallsPDdataV fullexcessdaysleepSNPinNallsPDdataVchrposID > temp
 cat header3 temp | sed -e 's/ /\t/g' > fullexcessdaysleepSNPinNallsPDdataV
 
-#16. THEN WE WILL EXTRAC THE INFORMATION FOR THIS NEW SET TO SNPs TO CALCULATE THEIR Rsq AND F-STATISTIC
+#16. THEN WE WILL EXTRACT THE INFORMATION FOR THIS NEW SET TO SNPs TO CALCULATE THEIR Rsq AND F-STATISTIC
 echo "SNP CHR BP A1 A2 MAF BETA SE P N" | sed -e 's/ /\t/g'  > header
 awk '{ if (NR!=1) print $10}' fullexcessdaysleepSNPinNallsPDdataV > temp
 grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_EXCESSIVE_DAYTIME_SLEEPINESS_all.txt | sort -n -k 2 | uniq > temp2
