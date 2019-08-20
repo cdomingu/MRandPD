@@ -82,70 +82,135 @@ cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstati
 grep -w -f indexSNPSsleepdurV /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_SLEEP_DURATION_all.txt | sort -n -k 2 | uniq > temp
 cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticprePD/sleepdurforR2calc
 
-#7. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
-echo "MarkerName Allele1 Allele2 Effect StdErr P-value NStudies HetISq" | sed -e 's/ /\t/g'  > header
-grep -w -f indexSNPSexcessdaysleepV /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/excessdaysleepSNPinPDdataV
-grep -w -f indexSNPSinsomniaV /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/insomniaSNPinPDdataV
-grep -w -f indexSNPSsleepdurV /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/sleepdurSNPinPDdataV
+#7. AS PD DATASET DOS NOT HAVE rsID BUT CHR:BP VALUES, EXTRACT THE CHR:POS OF OUR INDEX SNPS
+awk '{ if (NR!=1) print $1,$2}' ageofinitiationforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > ageofinitchrpos
+awk '{ if (NR!=1) print $1,$2}' cigarettespdayforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > cigarettespdaychrpos
+awk '{ if (NR!=1) print $1,$2}' drinksperweekforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > drinkspweekchrpos
+awk '{ if (NR!=1) print $1,$2}' eversmokingforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > eversmokingchrpos
+awk '{ if (NR!=1) print $1,$2}' smokingstatusforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > smokingstatchrpos
+awk '{ if (NR!=1) print $2,$3}' excessdaysleepforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > excessdaysleepchrpos
+awk '{ if (NR!=1) print $2,$3}' sleepdurforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > sleepdurchrpos
+awk '{ if (NR!=1) print $2,$3}' insomniaforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > insomniachrpos
+awk '{ if (NR!=1) print $2,$3}' eduyearsforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > eduyearschrpos
 
-#8.GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
-cd /data/neurogen/MRandPD/Results/HarmonizationVerbose/
-awk '{ if (NR!=1) print $1}' excessdaysleepSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/SleepClumpvalmin7Verbose/indexSNPSexcessdaysleepV > missingindexSNPexcessdaysleepV
-awk '{ if (NR!=1) print $1}' insomniaSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/SleepClumpvalmin7Verbose/indexSNPSinsomniaV > missingindexSNPinsomniaV
-awk '{ if (NR!=1) print $1}' sleepdurSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/SleepClumpvalmin7Verbose/indexSNPSsleepdurV > missingindexSNPsleepdur
+#8.EXTRACT OUR INDEX SNPS CHR:BP FROM PD DATASET
+echo "SNP A1 A2 freq b se p N_cases N_controls" > header
+grep -w -f excessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab| sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/excessdaysleepSNPinNallsPDdataV
+grep -w -f insomniachrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/insomniaSNPinNallsPDdataV
+grep -w -f sleepdurchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/sleepdurSNPinNallsPDdataV
 
-#9.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.9 WITH INDEX SNP)
+#9. MAKE A rsID-CH:POS CONVERTION TABLE OF OUR INDEX SNPs
+awk '{ if (NR!=1) print $1}' excessdaysleepforR2calc > excessdaysleeprsID
+paste excessdaysleepchrpos excessdaysleeprsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > excessdaysleepposrsID
+awk '{ if (NR!=1) print $1}' sleepdurforR2calc > sleepdurrsID
+paste sleepdurchrpos sleepdurrsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > sleepdurposrsID
+awk '{ if (NR!=1) print $1}' insomniaforR2calc > insomniarsID
+paste insomniachrpos insomniarsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > insomniaposrsID
+
+#10.GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
+cd /data/neurogen/MRandPD/Results/HarmonizationNalls2019
+awk '{ if (NR!=1) print $1}' excessdaysleepSNPinNallsPDdataV > temp
+grep -v -f temp /data/neurogen/MRandPD/Results/R2andFstatisticprePD/excessdaysleepchrpos | sort > missingexcessdaysleepSNPinNallsPD
+awk '{ if (NR!=1) print $1}' insomniaSNPinNallsPDdataV > temp
+grep -v -f temp /data/neurogen/MRandPD/Results/R2andFstatisticprePD/insomniachrpos | sort > missinginsomniaSNPinNallsPD
+awk '{ if (NR!=1) print $1}' sleepdurSNPinNallsPDdataV > temp
+grep -v -f temp /data/neurogen/MRandPD/Results/R2andFstatisticprePD/sleepdurchrpos | sort > missingsleepdurSNPinNallsPD
+
+#11.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.6 WITH INDEX SNP)
 cd /data/neurogen/MRandPD/Results/Clumping/SleepClumpvalmin7Verbose/
 cat clumped.excessdaysleepallwo23.chr*.clumped > temp
 sed -e 's/     / /g' temp| sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsexcessdaysleep
+awk -F'[ ]' '$4>0.8 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq8SNPsexcessdaysleep
+awk -F'[ ]' '$4>0.7 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq7SNPsexcessdaysleep
+awk -F'[ ]' '$4>0.6 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq6SNPsexcessdaysleep
+
 cat clumped.insomniallwo23.chr*.clumped > test
 sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
 awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsinsomnia
-#after manually checking, no new snps
+awk -F'[ ]' '$4>0.6 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq6SNPsinsomnia
+#after manually checking, no new snps for snp duration
+
 cat clumped.sleepdurallwo23.chr*.clumped > temp
 sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
-awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsleepdurall
-#after manually checking, no new snps
+awk -F'[ ]' '$4>0.6 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsleepdurall
+#after manually checking, no new snps for snp duration
 
-#10."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
-grep -w -A6 'everymissingsnp' rsqSNPsexcessdaysleep
+#12."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
+grep -w -A10 'everymissingsnp' rsqSNPsexcessdaysleep
+#no proxy snps were found for the next variants:
+#rs147917224
+#rs148846329
+#rs188800342
+#rs184375653
+#rs2681335
+grep -w A10 'everymissingsnp' rsqSNPsinsomnia
 
-#11.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
-grep -A2 'rs180885632' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs180885632RsqSNPexcessdaysleep
-grep -A1 'rs11851923' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs11851923RsqSNPexcessdaysleep
-grep -A2 'rs192315283' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs192315283RsqSNPexcessdaysleep
-grep -A2 'rs138066714' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs138066714RsqSNPexcessdaysleep
-grep -A1 'rs35309287' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs35309287RsqSNPexcessdaysleep
-grep -A1 'rs71564440' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs71564440RsqSNPexcessdaysleep
-grep -A1 'rs58357132' rsqSNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs58357132RsqSNPexcessdaysleep
+#13.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
+grep -A9 'rs11851923' rsq6SNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs11851923RsqSNPexcessdaysleep
+grep -A1 'rs116450109' rsq6SNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs116450109RsqSNPexcessdaysleep
+grep -A5 'rs115320831' rsq7SNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs115320831RsqSNPexcessdaysleep
+grep -A2 'rs35309287' rsq7SNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs35309287RsqSNPexcessdaysleep
+grep -A1 'rs143088939' rsq8SNPsexcessdaysleep | grep -v INDEX | cut -d ' ' -f2 > rs143088939RsqSNPexcessdaysleep
 
-#12.EXTRAXT THIS NEW PROXY SNPs FROM THE PD GWAS DATASET, IF THERE ARE FOUND
-#grep -w -f rs180885632RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs180885632RsqSNPexcessdaysleepPD
-#grep -w -f rs11851923RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs11851923RsqSNPexcessdaysleepPD
-#grep -w -f rs192315283RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs192315283RsqSNPexcessdaysleepPD
-#grep -w -f rs138066714RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs138066714RsqSNPexcessdaysleepPD
-#grep -w -f rs35309287RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs35309287RsqSNPexcessdaysleepPD
-grep -w -f rs71564440RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs71564440RsqSNPexcessdaysleepPD
-#grep -w -f rs58357132RsqSNPexcessdaysleep /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs58357132RsqSNPexcessdaysleepPD
+cut -f1,2,3  -d ' ' /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_EXCESSIVE_DAYTIME_SLEEPINESS_all.txt > ESCESSDAYSLEEPchrposID
+grep -w -f rs115320831RsqSNPexcessdaysleep ESCESSDAYSLEEPchrposID > rs115320831proxySNPexcessdaysleepID
+cut -f2,3 -d ' ' rs115320831proxySNPexcessdaysleepID | sed -e 's/^/chr/g' | sed -e 's/ /:/g' > rs115320831SNPexcessdaysleepchrpos
+#grep -w -f rs11851923RsqSNPexcessdaysleep ESCESSDAYSLEEPchrposID > rs11851923proxySNPexcessdaysleepID
+#cut -f2,3 -d ' ' rs11851923proxySNPexcessdaysleepID | sed -e 's/^/chr/g' | sed -e 's/ /:/g' > rs11851923SNPexcessdaysleepchrpos
+#grep -w -f rs116450109RsqSNPexcessdaysleep ESCESSDAYSLEEPchrposID > rs116450109proxySNPexcessdaysleepID
+#cut -f2,3 -d ' ' rs116450109proxySNPexcessdaysleepID | sed -e 's/^/chr/g' | sed -e 's/ /:/g' > rs116450109SNPexcessdaysleepchrpos
+grep -w -f rs35309287RsqSNPexcessdaysleep ESCESSDAYSLEEPchrposID > rs35309287proxySNPexcessdaysleepID
+cut -f2,3 -d ' ' rs35309287proxySNPexcessdaysleepID | sed -e 's/^/chr/g' | sed -e 's/ /:/g' > rs35309287SNPexcessdaysleepchrpos
+#grep -w -f rs143088939RsqSNPexcessdaysleep ESCESSDAYSLEEPchrposID > rs143088939proxySNPexcessdaysleepID
+#cut -f2,3 -d ' ' rs143088939proxySNPexcessdaysleepID | sed -e 's/^/chr/g' | sed -e 's/ /:/g' > rs143088939SNPexcessdaysleepchrpos
 
-#13.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
-cat excessdaysleepSNPinPDdataV rs71564440RsqSNPexcessdaysleepPD > fullexcessdaysleepSNPinPDV
+#14. LOOK FOR THEM ON THE PD DATASET
+#grep -w -f rs11851923SNPexcessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/rs11851923proxSNPexcessdaysleepPD
+#grep -w -f rs116450109SNPexcessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/rs116450109proxSNPexcessdaysleepPD
+grep -w -f rs35309287SNPexcessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/rs35309287proxSNPexcessdaysleepPD
+#grep -w -f rs143088939SNPexcessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/rs143088939proxSNPexcessdaysleepPD
+grep -w -f rs115320831SNPexcessdaysleepchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/rs11532083proxSNPexcessdaysleepPD
 
-#14.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
+#15. JOIN THE RESULTS OF THE PROXY SNPS WITH THE REST OF THE INDEX SNPS, AND THEN AD THE rsID
+cd /data/neurogen/MRandPD/Results/HarmonizationNalls2019
+cat excessdaysleepSNPinNallsPDdataV rs35309287proxSNPexcessdaysleepPD rs11532083proxSNPexcessdaysleepPD | sort | uniq > fullexcessdaysleepSNPinNallsPDdataV
+
+join insomniaSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/insomniaposrsID | sed -e 's/ /\t/g' > temp
+mv temp insomniaSNPinNallsPDdataV
+join sleepdurSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/sleepdurposrsID | sed -e 's/ /\t/g' > temp
+mv temp sleepdurSNPinNallsPDdataV
+
+echo "SNP A1 A2 freq b se p N_cases N_controls rsID" | sed -e 's/ /\t/g' > header3
+awk '{ if (NR!=1) print $1}' fullexcessdaysleepSNPinNallsPDdataV > temp
+grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/DBsnpchrposID | sort > fullexcessdaysleepSNPinNallsPDdataVchrposID
+join fullexcessdaysleepSNPinNallsPDdataV fullexcessdaysleepSNPinNallsPDdataVchrposID > temp
+cat header3 temp | sed -e 's/ /\t/g' > fullexcessdaysleepSNPinNallsPDdataV
+
+#16. THEN WE WILL EXTRAC THE INFORMATION FOR THIS NEW SET TO SNPs TO CALCULATE THEIR Rsq AND F-STATISTIC
 echo "SNP CHR BP A1 A2 MAF BETA SE P N" | sed -e 's/ /\t/g'  > header
-awk '{ if (NR!=1) print $1}' fullexcessdaysleepSNPinPDV > temp
+awk '{ if (NR!=1) print $10}' fullexcessdaysleepSNPinNallsPDdataV > temp
 grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_EXCESSIVE_DAYTIME_SLEEPINESS_all.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/excessdaysleepforR2calcV
-awk '{ if (NR!=1) print $1}' insomniaSNPinPDdataV > temp
+cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/fullexcessdaysleepforR2calcVNalls
+awk '{ if (NR!=1) print $10}' insomniaSNPinNallsPDdataV > temp
 grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_INSOMNIA_SYMPTOMS_all.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/insomniaforR2calcV
-awk '{ if (NR!=1) print $1}' sleepdurSNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/sleep/Application6818_SleepTrait_data_Lane_RESULTS_DATA_SLEEP_DURATION_all.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/sleepdurforR2calcV
+cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/insomniaforR2calcVNalls
+awk '{ if (NR!=1) print $10}' sleepdurSNPinNallsPDdataV > temp
+grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/education/EduYears_Main.txt | sort -n -k 2 | uniq > temp2
+cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/sleepdurforR2calcVNalls
+
