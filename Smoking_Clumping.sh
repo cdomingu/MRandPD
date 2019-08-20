@@ -76,72 +76,48 @@ cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstati
 grep -w -f indexSNPSsmokingstat /data/neurogen/MRandPD/GWASsummaryStats/Smoking2019/SmokingStatus.txt | sort -n -k 2 | uniq > temp
 cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticprePD/smokingstatusforR2calc
 
+#7. AS PD DATASET DO NOT HAVE rsID BUT CHR:BP VALUES, EXTRACT THE CHR:POS OF OUR INDEX SNPS
+awk '{ if (NR!=1) print $1,$2}' ageofinitiationforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > ageofinitchrpos
+awk '{ if (NR!=1) print $1,$2}' cigarettespdayforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > cigarettespdaychrpos
+awk '{ if (NR!=1) print $1,$2}' eversmokingforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > eversmokingchrpos
+awk '{ if (NR!=1) print $1,$2}' smokingstatusforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > smokingstatchrpos
+
+awk '{ if (NR!=1) print $3}' cigarettespdayforR2calc > cigarettespdayrsID
+paste cigarettespdaychrpos cigarettespdayrsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > cigarettespdaychrposrsID
+awk '{ if (NR!=1) print $3}' drinksperweekforR2calc > drinkspweekrsID
+paste drinkspweekchrpos drinkspweekrsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > drinkspweekchrposrsID
+awk '{ if (NR!=1) print $3}' eversmokingforR2calc > eversmokingrsID
+paste eversmokingchrpos eversmokingrsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > eversmokingposrsID
+awk '{ if (NR!=1) print $3}' smokingstatusforR2calc > smokingstatrsID
+paste smokingstatchrpos smokingstatrsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > smokingstatposrsID
+
 #7. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
-cd /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/
-echo "MarkerName Allele1 Allele2 Effect StdErr P-value NStudies HetISq" | sed -e 's/ /\t/g'  > header
-grep -w -f indexSNPSageofinit /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/ageofinitsmkSNPinPDdataV
-grep -w -f indexSNPScigperdayverb /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/cigperdaySNPinPDdataV
-grep -w -f indexSNPSeversmokverb /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/eversmkSNPinPDdataV
-grep -w -f indexSNPSsmokingstat /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/smokingsatSNPinPDdataV
+echo "SNP A1 A2 freq b se p N_cases N_controls" > header
+grep -w -f ageofinitchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab| sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ageofinitSNPinNallsPDdataV
+grep -w -f cigarettespdaychrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/cigarettespdaySNPinNallsPDdataV
+grep -w -f eversmokingchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab| sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/eversmokingSNPinNallsPDdataV
+grep -w -f smokingstatchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/smokingstatSNPinNallsPDdataV
 
-#8.GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
-awk '{ if (NR!=1) print $1}' ageofinitsmkSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/indexSNPSageofinit > missingindexSNPageofinitV
-awk '{ if (NR!=1) print $1}' cigperdaySNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/indexSNPScigperdayverb > missingindexSNPcigperday
-awk '{ if (NR!=1) print $1}' eversmkSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/indexSNPSeversmokverb > missingindexSNPeversmoking
-awk '{ if (NR!=1) print $1}' smokingsatSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/indexSNPSsmokingstat > missingindexSNPsmokingstat
-
-#9.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.9 WITH INDEX SNP)
-cd /data/neurogen/MRandPD/Results/Clumping/Smoking2019Clumppvalmin8Verbose/
-cat clumped.cigarettespday.chr*.clumped > temp
-sed -e 's/     / /g' temp| sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
-awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPscigperday
-#after manually checking, no new snps
-cat clumped.eversmoking.chr*.clumped > temp
-sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
-awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]"> rsqSNPseversmok
-cat clumped.smokingstatus.chr*.clumped > temp
-sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
-awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsmokstat
-#after manually checking, no new snps
-cat clumped.ageofinitiation.chr*.clumped > temp
-sed -e 's/     / /g' temp | sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > test
-awk -F'[ ]' '$4>0.9 || $5==1' test | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsageofinit
-#after manually checking, no new snps
-
-#10."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
-grep -w -A10 'everymissingsnp' rsqSNPseversmok 
-
-#11.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
-grep -A4 'rs76214862' rsqSNPseversmok | grep -v INDEX | cut -d ' ' -f2 > rs76214862RsqSNPeversmk
-grep -A7 'rs12112638' rsqSNPseversmok | grep -v INDEX | cut -d ' ' -f2 > rs12112638RsqSNPeversmk
-
-#12.EXTRAXT THIS NEW PROXY SNPs FROM THE PD GWAS DATASET, IF THERE ARE FOUND
-grep -w -f rs76214862RsqSNPeversmk /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs76214862RsqSNPeversmkinpPD
-grep -w -f rs12112638RsqSNPeversmk /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs12112638RsqSNPeversmkinpPD
-
-#13.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
-cat eversmkSNPinPDdataV rs76214862RsqSNPeversmkinpPD rs12112638RsqSNPeversmkinpPD > fulleversmkSNPinPDdataV
-
-#14.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
-cd /data/neurogen/MRandPD/Results/HarmonizationVerbose/
-echo "CHROM POS RSID REF ALT AF STAT PVALUE BETA SE N EFFECTIVE_N Number_of_Studies ANNO ANNOFULL" | sed -e 's/ /\t/g'  > header
-awk '{ if (NR!=1) print $1}' ageofinitsmkSNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/Smoking2019/AgeOfInitiation.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/ageofinitiationforR2calcV
-awk '{ if (NR!=1) print $1}' cigperdaySNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/Smoking2019/CigarettesPerDay.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/cigarettespdayforR2calcV
-awk '{ if (NR!=1) print $1}' fulleversmkSNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/Smoking2019/EverSmoking.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/eversmokingforR2calcV
-awk '{ if (NR!=1) print $1}' smokingsatSNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/Smoking2019/SmokingStatus.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/smokingstatusforR2calcV
+#AD THE rsID NUMBER TO THE DATA
+join ageofinitSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/ageofinitchrposrsID | sed -e 's/ /\t/g' > temp
+mv temp ageofinitSNPinNallsPDdataV
+join cigarettespdaySNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/cigarettespdaychrposrsID | sed -e 's/ /\t/g' > temp
+mv temp cigarettespdaySNPinNallsPDdataV
+join drinkspweekSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/drinkspweekchrposrsID | sed -e 's/ /\t/g' > temp
+mv temp drinkspweekSNPinNallsPDdataV
+join eversmokingSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/eversmokingposrsID | sed -e 's/ /\t/g' > temp
+mv temp eversmokingSNPinNallsPDdataV
+join smokingstatSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/smokingstatposrsID | sed -e 's/ /\t/g' > temp
+mv temp smokingstatSNPinNallsPDdataV
