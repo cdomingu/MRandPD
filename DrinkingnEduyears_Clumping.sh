@@ -52,48 +52,23 @@ echo "CHROM POS RSID REF ALT AF STAT PVALUE BETA SE N EFFECTIVE_N Number_of_Stud
 grep -w -f indexSNPSdrinksperweekV /data/neurogen/MRandPD/GWASsummaryStats/drinking/DrinksPerWeek.txt | sort -n -k 2 | uniq > temp
 cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticprePD/drinksperweekforR2calc
 
-#7. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
-echo "MarkerName Allele1 Allele2 Effect StdErr P-value NStudies HetISq" | sed -e 's/ /\t/g'  > header
-grep -w -f indexSNPSdrinksperweekV /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/drinksperweekSNPinPDdataV
+#7. AS PD NALLS DATASET DOESN'T HAVE AN rsID, EXTRACT THE CHR:BP POSITION
+cd /data/neurogen/MRandPD/Results/R2andFstatisticprePD/
+awk '{ if (NR!=1) print $1,$2}' drinksperweekforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > drinkspweekchrpos
 
-#8.GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
-cd /data/neurogen/MRandPD/Results/HarmonizationVerbose/
-awk '{ if (NR!=1) print $1}' drinksperweekSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/DrinkingClumppvalmin8Verbose/indexSNPSdrinksperweekV > missingindexSNPdrinksperweekV
+echo "SNP rsID" > header2
+awk '{ if (NR!=1) print $3}' drinksperweekforR2calc > drinkspweekrsID
+paste drinkspweekchrpos drinkspweekrsID | sort > temp
 
-#9.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.9 WITH INDEX SNP)
-cd /data/neurogen/MRandPD/Results/Clumping/DrinkingClumppvalmin8Verbose/
-cat clumped.drinksperweek.chr*.clumped > temp
-sed -e 's/     / /g' temp| sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > prueba
-awk -F'[ ]' '$4>0.9 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPsdrinksperweek
+#8. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
+echo "SNP A1 A2 freq b se p N_cases N_controls" > header
+grep -w -f drinkspweekchrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/drinkspweekSNPinNallsPDdataV
 
-#10."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
-grep -w -A10 'everymissingsnip' rsqSNPsdrinksperweek
-
-#11.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
-grep -A27 'rs34704785' rsqSNPsdrinksperweek | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.95 && $3 < .000001' temp | cut -d ' ' -f1 > rs34704785RsqSNPdrinksperweek
-grep -A178 'rs113589236' rsqSNPsdrinksperweek | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.97 && $3 < .00000000000000002' temp | cut -d ' ' -f1 > rs113589236RsqSNPdrinksperweek
-grep -A3 'rs76217384' rsqSNPsdrinksperweek | grep -v INDEX | cut -d ' ' -f2 > rs76217384RsqSNPdrinksperweek
-grep -A1 'rs113909752' rsqSNPsdrinksperweek | grep -v INDEX | cut -d ' ' -f2 > rs113909752RsqSNPdrinksperweek
-
-#12.EXTRAXT THIS NEW PROXY SNPs FROM THE PD GWAS DATASET, IF THERE ARE FOUND
-grep -w -f rs34704785RsqSNPdrinksperweek /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs34704785RsqSNPdrinksperweekPD
-grep -w -f rs113589236RsqSNPdrinksperweek /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs113589236RsqSNPdrinksperweekPD
-grep -w -f rs76217384RsqSNPdrinksperweek /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs76217384RsqSNPdrinksperweekPD
-grep -w -f rs113909752RsqSNPdrinksperweek /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs113909752RsqSNPdrinksperweekPD
-
-#13.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
-cat drinksperweekSNPinPDdataV rs34704785RsqSNPdrinksperweekPD rs113589236RsqSNPdrinksperweekPD rs76217384RsqSNPdrinksperweekPD rs113909752RsqSNPdrinksperweekPD > fulldrinksperweekSNPinPDdataV
-
-#14.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
-echo "CHROM POS RSID REF ALT AF STAT PVALUE BETA SE N EFFECTIVE_N Number_of_Studies ANNO ANNOFULL" | sed -e 's/ /\t/g'  > header
-awk '{ if (NR!=1) print $1}' fulldrinksperweekSNPinPDdataV > temp
-grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/drinking/DrinksPerWeek.txt  | awk '$8<.000001' | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/drinksperweekforR2calcV
-
+#9. AD THE rsID
+join drinkspweekSNPinNallsPDdataV /data/neurogen/MRandPD/Results/R2andFstatisticprePD/drinkspweekchrposrsID | sed -e 's/ /\t/g' > temp
+mv temp drinkspweekSNPinNallsPDdataV
 
 ##EDUCATIONAL ATTAINMENT
 
@@ -143,55 +118,117 @@ echo "MarkerName CHR POS A1 A2 EAF Beta SE Pval" | sed -e 's/ /\t/g'  > header
 grep -w -f indexSNPSeduyearsV /data/neurogen/MRandPD/GWASsummaryStats/education/EduYears_Main.txt | sort -n -k 2 | uniq > temp
 cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticprePD/eduyearsforR2calc
 
-#7. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
-cd /data/neurogen/MRandPD/Results/Clumping/EduyearsClumppvalmin8Verbose/
-echo "MarkerName Allele1 Allele2 Effect StdErr P-value NStudies HetISq" | sed -e 's/ /\t/g'  > header
-grep -w -f indexSNPSeduyearsV /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > temp
-cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationVerbose/eduyearsSNPinPDdataV
+#7. AS PD NALLS DATASET DOESN'T HAVE AN rsID, EXTRACT THE CHR:BP POSITION
+cd /data/neurogen/MRandPD/Results/R2andFstatisticprePD/
+awk '{ if (NR!=1) print $2,$3}' eduyearsforR2calc > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > eduyearschrpos
 
-#8. GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
-cd /data/neurogen/MRandPD/Results/HarmonizationVerbose/
-awk '{ if (NR!=1) print $1}' eduyearsSNPinPDdataV > temp
-grep -v -f temp /data/neurogen/MRandPD/Results/Clumping/EduyearsClumppvalmin8Verbose/indexSNPSeduyearsV > missingindexSNPeduyearsV
+echo "SNP rsID" > header2
+awk '{ if (NR!=1) print $3}' drinksperweekforR2calc > drinkspweekrsID
+paste drinkspweekchrpos drinkspweekrsID | sort > temp
 
-#9.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.9 WITH INDEX SNP)
+#8. EXTRACT THE INFORMATION OF THE INDEX SNPS BUT FROM THE PD GWAS DATASET
+echo "SNP A1 A2 freq b se p N_cases N_controls" > header
+grep -w -f eduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > temp
+cat header temp | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/eduyearsSNPinNallsPDdataV
+
+#9. GET MISSING VARIANTS (INDEX SNPS THAT WEREN'T FOUND ON PD GWAS DATASET)
+cd /data/neurogen/MRandPD/Results/HarmonizatioNalls2019/
+awk '{ if (NR!=1) print $1}' eduyearsSNPinNallsPDdataV > temp
+grep -v -f temp /data/neurogen/MRandPD/Results/R2andFstatisticprePD/eduyearschrpos | sort  > missingeduyearsSNPinNallsPD
+
+grep -f missingeduyearsSNPinNallsPD /data/neurogen/MRandPD/Results/R2andFstatisticprePD/eduyearsposrsID > temp
+mv temp missingeduyearsSNPinNallsPD
+
+#10.IDENTIFY PROXY SNPS FROM MISSING VARIANT (THE ONES WITH Rsquare > 0.9 WITH INDEX SNP)
 cd /data/neurogen/MRandPD/Results/Clumping/EduyearsClumppvalmin8Verbose/
 cat clumped.eduyears.chr*.clumped > temp
 sed -e 's/     / /g' temp| sed -e 's/    / /g' | sed -e 's/   / /g' | sed -e 's/  / /g' | grep -v "dataset" > prueba
 awk -F'[ ]' '$4>0.9 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsqSNPseduyears
+awk -F'[ ]' '$4>0.7 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq7SNPseduyears
+awk -F'[ ]' '$4>0.6 || $5==1' prueba | grep 'rs' | grep -v "^\s[0-9]" > rsq5SNPseduyears
 
-#10."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
+#11."MANUALLY" DETERMINE HOW MANY PROXY SNPS WERE FOUND DURING THE CLUMPING FOR THE MISSING SNPS
 grep -w -A10 'everymissingsnip' rsqSNPseduyears
 
-#11.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
-grep -A45 'rs1396967' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.96' temp | cut -d ' ' -f1 > rs1396967rsqSNPseduyears
-grep -A19 'rs111321694' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.975 && $3 < .0000002' temp | cut -d ' ' -f1 > rs111321694rsqSNPseduyears
-grep -A2026 'rs192818565' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.93 && $3 < .00000005' temp | cut -d ' ' -f1 > rs192818565rsqSNPseduyears
-grep -A23 'rs28792186' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
-awk '$2 > 0.97' temp | cut -d ' ' -f1 > rs28792186rsqSNPseduyears
-grep -A4 'rs6774721' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2 > rs6774721rsqSNPseduyears
-grep -A6 'rs7776010' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2 > rs7776010rsqSNPseduyears
-grep -A4 'rs12534506' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2 > rs12534506rsqSNPseduyears
-grep -A1 'rs1106761' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2 > rs1106761rsqSNPseduyears
+grep -w -A20 'rs11222416' rsq7SNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$2 > 0.75 && $3 < .0000004' temp | cut -d ' ' -f1 > rs11222416rsqSNPseduyears
+grep -w -A37 'rs7948975' rsq7SNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$3 < .00000008' temp | cut -d ' ' -f1 > rs7948975rsqSNPseduyears
+grep -w -A120 'rs12900061' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$2 > 0.99 && $3 < .000000006' temp | cut -d ' ' -f1 > rs12900061rsqSNPseduyears
+grep -w -A24 'rs28420834' rsq7SNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$2 > 0.72 && $3 < .0000002' temp | cut -d ' ' -f1 > rs28420834rsqSNPseduyears
+grep -w -A13 'rs11726992' rsq7SNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$2 > 0.74 && $3 < .000006' temp | cut -d ' ' -f1 > rs11726992rsqSNPseduyears
+grep -w -A5 'rs9792504' rsqSNPseduyears | grep -v INDEX | cut -d ' ' -f2 > rs9792504rsqSNPseduyears
+grep -w -A8 'rs7033137' rsq6SNPseduyears | grep -v INDEX | cut -d ' ' -f2,4,7 > temp
+awk '$3 < .0000006' temp | cut -d ' ' -f1 > rs7033137rsqSNPseduyears
 
-#12.EXTRAXT THIS NEW PROXY SNPs FROM THE PD GWAS DATASET, IF THERE ARE FOUND
-grep -w -f rs1396967rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs1396967rsqSNPseduyearsPD
-grep -w -f rs111321694rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs111321694rsqSNPseduyearsPD
-grep -w -f rs192818565rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs192818565rsqSNPseduyears
-grep -w -f rs28792186rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs28792186rsqSNPseduyears
-grep -w -f rs6774721rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs6774721rsqSNPseduyears
-grep -w -f rs7776010rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs7776010rsqSNPseduyears
-grep -w -f rs12534506rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs12534506rsqSNPseduyears
-grep -w -f rs1106761rsqSNPseduyears /data/neurogen/MRandPD/GWASsummaryStats/pd/META_ANALYSIS_10K23_beta_se_wo23AndMe1_pdgene_sharing_tab.tbl | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationVerbose/rs1106761rsqSNPseduyears
+#12.EXTRACT THE PROXY SNPS THAT WERE FOUND FOR ANY OF THE MISSING SNPs
+cut -f1,2,3 /data/neurogen/MRandPD/GWASsummaryStats/education/EduYears_Main.txt > EduYearschrposID
+grep -w -f rs11222416rsqSNPseduyears EduYearschrposID > rs11222416proxySNPeduyearschrposID
+cut -f2,3 rs11222416proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs11222416SNPeduyearschrpos
+grep -w -f rs7948975rsqSNPseduyears EduYearschrposID > rs7948975proxySNPeduyearschrposID
+cut -f2,3 rs7948975proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs7948975SNPeduyearschrpos
+grep -w -f rs12900061rsqSNPseduyears EduYearschrposID > rs12900061proxySNPeduyearschrposID
+cut -f2,3 rs12900061proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs12900061SNPeduyearschrpos
+grep -w -f rs28420834rsqSNPseduyears EduYearschrposID > rs28420834proxySNPeduyearschrposID
+cut -f2,3 rs28420834proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs28420834SNPeduyearschrpos
+grep -w -f rs11726992rsqSNPseduyears EduYearschrposID > rs11726992proxySNPeduyearschrposID
+cut -f2,3 rs11726992proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs11726992SNPeduyearschrpos
+grep -w -f rs9792504rsqSNPseduyears EduYearschrposID > rs9792504proxySNPeduyearschrposID
+cut -f2,3 rs9792504proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs9792504SNPeduyearschrpos
+grep -w -f rs7033137rsqSNPseduyears EduYearschrposID > rs7033137proxySNPeduyearschrposID
+cut -f2,3 rs7033137proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs7033137SNPeduyearschrpos
+grep -w -f rs1396967rsqSNPseduyears EduYearschrposID > rs1396967proxySNPeduyearschrposID
+cut -f2,3 rs1396967proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs1396967SNPeduyearschrpos
+grep -w -f rs111321694rsqSNPseduyears EduYearschrposID > rs111321694proxySNPeduyearschrposID
+cut -f2,3 rs111321694proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs111321694SNPeduyearschrpos
+grep -w -f rs192818565rsqSNPseduyears EduYearschrposID > rs192818565proxySNPeduyearschrposID
+cut -f2,3 rs192818565proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs192818565SNPeduyearschrpos
+grep -w -f rs71537331rsqSNPseduyears EduYearschrposID > rs71537331proxySNPeduyearschrposID
+cut -f2,3 rs71537331proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs71537331SNPeduyearschrpos
+grep -w -f rs7776010rsqSNPseduyears EduYearschrposID > rs7776010proxySNPeduyearschrposID
+cut -f2,3 rs7776010proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs7776010SNPeduyearschrpos
+grep -w -f rs28792186rsqSNPseduyears EduYearschrposID > rs28792186proxySNPeduyearschrposID
+cut -f2,3 rs28792186proxySNPeduyearschrposID | sed -e 's/^/chr/g' | sed -e 's/\t/:/g' > rs28792186SNPeduyearschrpos
 
-#13.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
-cat eduyearsSNPinPDdataV rs1396967rsqSNPseduyearsPD rs111321694rsqSNPseduyearsPD rs192818565rsqSNPseduyears rs28792186rsqSNPseduyears rs6774721rsqSNPseduyears rs7776010rsqSNPseduyears rs12534506rsqSNPseduyears rs1106761rsqSNPseduyears > fulleduyearsSNPinPDdataV
+#13.EXTRAXT THIS NEW PROXY SNPs FROM THE PD GWAS DATASET, IF THERE ARE FOUND
+grep -w -f rs11222416SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs11222416proxSNPseduyearsPD
+grep -w -f rs7948975SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs7948975proxSNPseduyearsPD
+grep -w -f rs12900061SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs12900061proxSNPseduyearsPD
+grep -w -f rs28420834SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs28420834proxSNPseduyearsPD
+grep -w -f rs11726992SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs11726992proxSNPseduyearsPD
+grep -w -f rs9792504SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs9792504proxSNPseduyearsPD
+grep -w -f rs7033137SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs7033137proxSNPseduyearsPD
+grep -w -f rs1396967SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs1396967proxSNPseduyearsPDPD
+grep -w -f rs111321694SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs111321694proxSNPseduyearsPD
+grep -w -f rs192818565SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs192818565proxSNPseduyearsPD
+grep -w -f rs71537331SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs71537331proxSNPseduyearsPD
+grep -w -f rs7776010SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/rs7776010proxSNPseduyearsPD
+grep -w -f rs28792186SNPeduyearschrpos /data/neurogen/MRandPD/GWASsummaryStats/PDnalls2019/nallsEtAl2019_excluding23andMe_allVariants.tab | sort | uniq > /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyearsrs28792186proxSNPseduyearsPD
 
-#14.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
+#14.JOIN ALL INDEX SNPS FOUND ON THE PD GWAS DATASET
+cat eduyearsSNPinNallsPDdataV /data/neurogen/MRandPD/Results/HarmonizationNalls2019/ProxySNPseduyears/*proxSNPseduyears* | sort | uniq > fulleduyearsSNPinNallsPDdataV 
+
+#15. ADD THE rsID TO THE INFO OF THE INDEX SNPS ON PD DATA
+cd /data/neurogen/MRandPD/GWASsummaryStats/education/
+echo "SNP rsID" > header2
+awk '{ if (NR!=1) print $2,$3}' EduYears_Main.txt > temp
+sed -e 's/^/chr/g' temp | sed -e 's/ /:/g' > GWASeduyearschrpos
+awk '{ if (NR!=1) print $1}' EduYears_Main.txt > GWASeduyearsID
+paste GWASeduyearschrpos GWASeduyearsID | sort > temp
+cat header2 temp | sed -e 's/ /\t/g' > GWASeduyearschrposrsID
+
+cd /data/neurogen/MRandPD/Results/HarmonizatioNalls2019/
+awk '{ if (NR!=1) print $1}' fulleduyearsSNPinNallsPDdataV > temp
+grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/education/GWASeduyearschrposrsID | sort > fulleduyearsSNPinNallsPDdataVchrposID
+join fulleduyearsSNPinNallsPDdataV fulleduyearsSNPinNallsPDdataVchrposID > temp
+cat header3 temp | sed -e 's/ /\t/g' > fulleduyearsSNPinNallsPDdataV
+
+#16.EXTRACT THE INFO FOR CALCULATING Rsquare AND F-STATISTIC FROM INDEX SNPS ALSO PRESENT IN THE PD GWAS DATASET 
 echo "MarkerName CHR POS A1 A2 EAF Beta SE Pval" | sed -e 's/ /\t/g'  > header
-awk '{ if (NR!=1) print $1}' fulleduyearsSNPinPDdataV > temp
+awk '{ if (NR!=1) print $10}' fulleduyearsSNPinNallsPDdataV > temp
 grep -w -f temp /data/neurogen/MRandPD/GWASsummaryStats/education/EduYears_Main.txt | sort -n -k 2 | uniq > temp2
-cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/eduyearsforR2calcV
+cat header temp2 | sed -e 's/ /\t/g' > /data/neurogen/MRandPD/Results/R2andFstatisticVerbose/eduyearsforR2calcVNalls
