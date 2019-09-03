@@ -19,12 +19,10 @@ a.	(if a variant is missing, replace it with a proxy variant)
 6.	Undergo Harmonization of Datasets
 a.	Ensure that all instrumental variables are associated with the exposure on the same direction (positive), if not, flip them.
 b.	Ensure that both datasets (the one from the exposure and the one from PD) are identically coded regarding the effect alleles. 
-7.	Calculate the Wald estimator for each of the individual SNPs by dividing the log-OR for PD and dividing it by the mean difference of the SB for each SNP (obtained by dividing the variant-exposure association over the variant-outcome association). (log-OR will be obtained through PRS). 
+7.	Calculate the Wald estimator for each of the individual SNPs by dividing the log-OR for PD and dividing it by the mean difference of the SB for each SNP (obtained by dividing the variant-exposure association over the variant-outcome association).
 8.	Apply an inverse-variance weighted (IVW) method to obtaining the linear regression. 
 9.	Test for heterogeneity by MR-Egger regression method to test for bias due to horizontal pleiotropy, and check this by funnel plots. 
 10.	Perform MR-PRESSO as an alternative method to test for pleiotropy
 11.	Do power calculations.
 12.	Implement bi-directional MR if possible
 Repeat this process for every exposure proposed.
-
-
