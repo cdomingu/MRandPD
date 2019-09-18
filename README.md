@@ -21,6 +21,6 @@ b.	Ensure that both datasets (the one from the exposure and the one from PD) are
 6. Apply an inverse-variance weighted (IVW) method to obtain the causal estimate.
 7. Test for pleiotropy by MR-Egger regression method and check this by funnel plots.
 8.	Perform MR-PRESSO as an alternative method to test for pleiotropy
-9.Run the analysis under the GSMR method.
+9. Run the analysis under the GSMR method.
 10.	Implement bi-directional MR if possible
 Repeat this process for every exposure proposed.
