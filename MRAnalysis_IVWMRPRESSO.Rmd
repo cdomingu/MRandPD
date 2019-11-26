@@ -1,0 +1,53 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+########################################### MRAnalysis_IVWMRPRESSO.Rmd =====
+author: Carmen Domínguez
+email: cdomingu@lcg.unam.mx
+date: 11/26/2019
+version: 1.0
+
+This script is for running the Mendelian Randomization Analysis using the MendelianRandomization R package described by Yavorska,2017 (see https://cran.r-project.org/web/packages/MendelianRandomization/MendelianRandomization.pdf) 
+And evaluating Pleiotropy using MRPRESSO package, described by Verbank,2018 (see https://github.com/rondolab/MR-PRESSO/tree/master/man)
+
+```{r}
+library(MendelianRandomization)
+library(MRPRESSO)
+IVWcolnames<-c("bx","bxse","by","byse","snps","ea","oa","eaf")
+PRESSOcolnames<-c("bx","bxse","bxpval","by","byse","bypval")
+MRPRESSO_outliers<-vector()
+exposure4IVW<-read.table("/Users/carmendominguez/MyDocs/SmokingDrinking_MR/SmkDrnk_Nalls2019/SmkDrnk_IVWNalls2019_Input/exposurevsPD_IVWinput", skip = 1, col.names = IVWcolnames)
+exposure4PRESSO<-read.table("/Users/carmendominguez/MyDocs/SmokingDrinking_MR/SmkDrnk_Nalls2019/SmkDrnk_MRPRESSONalls2019_Input/exposurevsPD_MRPRESSOinput", skip = 1, col.names = PRESSOcolnames)
+MRPRESSO_results<-mr_presso(BetaOutcome = "by", BetaExposure = "bx", SdOutcome = "byse", SdExposure = "bxse", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = exposure4PRESSO, NbDistribution = 10000,  SignifThreshold = 0.1)
+while (length(MRPRESSO_results$`MR-PRESSO results`$`Distortion Test`$`Outliers Indices`)!=0)
+{
+  MRPRESSO_outliers<-c(MRPRESSO_outliers,MRPRESSO_results$`MR-PRESSO results`$`Distortion Test`$`Outliers Indices`)
+  exposure4PRESSO<-exposure4PRESSO[-c(MRPRESSO_outliers,MRPRESSO_results$`MR-PRESSO results`$`Distortion Test`$`Outliers Indices`),]
+  exposure4IVW<-exposure4IVW[-c(MRPRESSO_outliers,MRPRESSO_results$`MR-PRESSO results`$`Distortion Test`$`Outliers Indices`),]
+  MRPRESSO_results<-mr_presso(BetaOutcome = "by", BetaExposure = "bx", SdOutcome = "byse", SdExposure = "bxse", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = exposure4PRESSO, NbDistribution = 10000,  SignifThreshold = 0.1)
+}
+exposure_input <- mr_input(bx= exposure4IVW$bx, bxse = exposure4IVW$bxse, by = exposure4IVW$by, byse = exposure4IVW$byse, exposure = "Intelligence", outcome = "PD", snps = exposure4IVW$snps, effect_allele = exposure4IVW$ea, other_allele = exposure4IVW$oa, eaf = exposure4IVW$eaf)
+```
+
+```{r}
+mr_plot(mr_allmethods(exposure_input, method = "ivw"), labels = TRUE)
+mr_plot(mr_allmethods(exposure_input, method = "egger"), labels = TRUE)
+```
+
+```{r}
+IVW_results<-mr_allmethods(exposure_input, method = "ivw")
+MREgger_results<-mr_allmethods(exposure_input, method = "egger")
+MRPRESSO_results
+IVW_results
+MREgger_results
+```
+
+```{r}
+mr_ivw(exposure_input, model = "default", robust = TRUE,
+       penalized = FALSE, weights = "simple", psi = 0, correl = FALSE,
+       distribution = "normal", alpha = 0.05)
+mr_egger(exposure_input, robust = TRUE, penalized = FALSE,
+         correl = FALSE, distribution = "normal", alpha = 0.05)
+```
