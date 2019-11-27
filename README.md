@@ -20,4 +20,5 @@ b.	Ensure that both datasets (the one from the exposure and the one from PD) are
 Repeat this process for every exposure proposed.
 
 The MRAnalysis_examplePipeline.sh is an example bash script with all the code needed to run any MR study by providing twho set of summary statistics in the specified format. The scripts BetaPositiveHarmonization.R, SameEAHarmonization.R and R2andFstatistic_calculation.R will be called thoughout the MRAnalysis_examplePipeline.sh script, in which the las step will provide the input files for the IVW, MRPRESSO and GSMR Mendelian Randomization methods.
+
 The scripts for the MRAnalysis are intended for RStudio. The MRAnalysis_IVWMRMPRESSO.Rmd is needed to run the IVW and MRPRESSO methods. For running GSMR, first run the last lines in MRAnalysis_examplePipeline.sh and then proceed to run the script MRAnalysis_GSMR.Rmd
