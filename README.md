@@ -3,12 +3,6 @@ Mendelian Randomization and Parkinson's disease Project
 
 Here, we will be using Summary Statistics from different exposure GWAS and from Parkinson's disease GWAS to determine if those exposures of interest have a causal influence over Parkinson's Disease.
 
-The exposures that have been included in the analysis thus far are:
-1. Smoking (age of initiation, cigarrettes per day, ever vs never smoking, former vs current smoker).
-2. Sleeping (excess daytime sleepiness, insomnia, sleep duration)
-3. Drinking (drinks per week)
-4. Educational Attainment (years of education)
-
 We will be following the next pipeline for conducting a Mendelian Randomization study:
 1.	Get the SNPs associated the exposure from its respective GWAS summary statistics.
 2.	Clump them to get independent sets of index SNPs that can be used in the analysis.  (The instrumental variables)
@@ -24,3 +18,6 @@ b.	Ensure that both datasets (the one from the exposure and the one from PD) are
 9. Run the analysis under the GSMR method.
 10.	Implement bi-directional MR if possible
 Repeat this process for every exposure proposed.
+
+The MRAnalysis_examplePipeline.sh is an example bash script with all the code needed to run any MR study by providing twho set of summary statistics in the specified format. The scripts BetaPositiveHarmonization.R, SameEAHarmonization.R and R2andFstatistic_calculation.R will be called thoughout the MRAnalysis_examplePipeline.sh script, in which the las step will provide the input files for the IVW, MRPRESSO and GSMR Mendelian Randomization methods.
+The scripts for the MRAnalysis are intended for RStudio. The MRAnalysis_IVWMRMPRESSO.Rmd is needed to run the IVW and MRPRESSO methods. For running GSMR, first run the last lines in MRAnalysis_examplePipeline.sh and then proceed to run the script MRAnalysis_GSMR.Rmd
