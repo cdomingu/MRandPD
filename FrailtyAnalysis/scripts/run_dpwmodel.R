@@ -24,4 +24,4 @@ i=${SGE_TASK_ID}
 splits=10
 outdir="../FrailtyAnalysis/analysis/dpw_pd/dpwscratch"
 
-Rscript --no-save --args ${i} ${splits} ${outdir} < ../FrailtyAnalysis/scripts/dpw_model.R
+Rscript --no-save --args ${i} ${splits} ${outdir} < ../FrailtyAnalysis/scripts/dpwmodel.R
