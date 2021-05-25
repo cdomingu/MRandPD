@@ -10,7 +10,7 @@ library(dplyr)
 library(systemfit)
 library(Runuran)
 
-load("/export/storage/users/cdomingu/FrailtyAnalysis/analysis/dpw_pd/results/alldpwmodel.RData")
+load("../FrailtyAnalysis/analysis/dpw_pd/results/alldpwmodel.RData")
 res$model <- "model1"
 res$modname <- "DPW ~ SNP"
 
